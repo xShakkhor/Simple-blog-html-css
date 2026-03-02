@@ -1,5 +1,6 @@
 export const portfolioData = {
-  name: 'xShakkar',
+  name: 'Nayeem Shakkhor',
+  shortName: 'xShakkhor',
   displayName: 'Shakkar Blog',
   subtitle: 'Full-Stack Developer & Creative Technologist',
   bio: `Passionate developer creating immersive digital experiences. 

@@ -76,11 +76,11 @@ export default function EntryPortal({ onComplete }) {
     
     tl.to({}, {
       duration: 2,
-      onComplete: () => {
+        onComplete: () => {
         let i = 0
         const typeInterval = setInterval(() => {
-          if (i <= portfolioData.name.length) {
-            setTypedText(portfolioData.name.slice(0, i))
+          if (i <= portfolioData.shortName.length) {
+            setTypedText(portfolioData.shortName.slice(0, i))
             i++
           } else {
             clearInterval(typeInterval)
