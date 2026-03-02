@@ -10,7 +10,7 @@ import ScreenshotButton from './components/ui/ScreenshotButton'
 import BackgroundMusic, { useBackgroundMusic } from './components/ui/BackgroundMusic'
 import UserInfoPanel from './components/ui/UserInfoPanel'
 import EntryPortal from './components/3d/EntryPortal'
-import { ZoomIn, ZoomOut, RotateCcw, Volume2, VolumeX, Music, Music2, Globe } from 'lucide-react'
+import { ZoomIn, ZoomOut, RotateCcw, Volume2, VolumeX, Music, Music2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSoundEffects } from './hooks/useSoundEffects'
 
@@ -76,30 +76,30 @@ function Header({ soundEffects, music }) {
   const { zoom, zoomIn, zoomOut, resetToEntry, isExplored } = usePortfolioStore()
 
   return (
-    <div className="absolute top-0 left-0 right-0 z-30 px-4 py-2 flex items-center justify-between pointer-events-none">
-      <div className="flex items-center gap-4 pointer-events-auto">
+    <div className="absolute top-1 left-1 right-1 z-30 px-3 py-1.5 flex items-center justify-between pointer-events-none rounded-t-lg bg-space-black/80">
+      <div className="flex items-center gap-3 pointer-events-auto">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-plasma-green animate-pulse"></div>
-          <h1 className="text-xl font-bold tracking-[0.3em] text-gradient">
+          <div className="w-2.5 h-2.5 rounded-full bg-plasma-green animate-pulse"></div>
+          <h1 className="text-lg font-bold tracking-[0.2em] text-gradient">
             COSMOS
           </h1>
         </div>
-        <div className="h-5 w-px bg-gradient-to-b from-cosmic-violet/50 to-transparent"></div>
+        <div className="h-4 w-px bg-gradient-to-b from-cosmic-violet/50 to-transparent"></div>
         <SignalIndicator />
       </div>
 
       {isExplored && (
-        <div className="flex items-center gap-2 pointer-events-auto">
-          <div className="flex items-center gap-1.5 glass-panel px-2 py-1">
+        <div className="flex items-center gap-1.5 pointer-events-auto">
+          <div className="flex items-center gap-1 glass-panel px-2 py-1">
             <button
               onClick={() => music.togglePlay()}
               className="flex items-center justify-center hover:text-cosmic-violet transition-colors"
               title={music.isPlaying ? 'Pause Music' : 'Play Music'}
             >
               {music.isPlaying ? (
-                <Music2 size={14} className="text-cosmic-violet animate-pulse" />
+                <Music2 size={13} className="text-cosmic-violet animate-pulse" />
               ) : (
-                <Music size={14} className="text-muted-slate" />
+                <Music size={13} className="text-muted-slate" />
               )}
             </button>
             <input
@@ -109,10 +109,10 @@ function Header({ soundEffects, music }) {
               step="0.1"
               value={music.volume}
               onChange={(e) => music.setVolume(parseFloat(e.target.value))}
-              className="w-12 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-cosmic-violet"
+              className="w-10 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-cosmic-violet"
               title={`Volume: ${Math.round(music.volume * 100)}%`}
             />
-            <span className="text-xs text-cyan-nebula font-mono w-7">
+            <span className="text-xs text-cyan-nebula font-mono w-6">
               {Math.round(music.volume * 100)}%
             </span>
           </div>
@@ -122,40 +122,40 @@ function Header({ soundEffects, music }) {
               soundEffects.toggleMute()
               soundEffects.playClick()
             }}
-            className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+            className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
             title={soundEffects.isMuted ? 'Unmute' : 'Mute'}
           >
             {soundEffects.isMuted ? (
-              <VolumeX size={16} className="text-text-white" />
+              <VolumeX size={14} className="text-text-white" />
             ) : (
-              <Volume2 size={16} className="text-text-white" />
+              <Volume2 size={14} className="text-text-white" />
             )}
           </button>
 
-          <div className="glass-panel px-2 py-1 flex items-center gap-1.5">
-            <span className="text-xs text-muted-slate font-mono">ZOOM</span>
-            <span className="text-xs text-cyan-nebula font-mono w-6 text-center">{zoom.toFixed(0)}x</span>
+          <div className="glass-panel px-2 py-1 flex items-center gap-1">
+            <span className="text-xs text-muted-slate font-mono">ZM</span>
+            <span className="text-xs text-cyan-nebula font-mono w-5 text-center">{zoom.toFixed(0)}</span>
           </div>
           <button
             onClick={() => soundEffects.playClick() || zoomIn()}
-            className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+            className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
             title="Zoom In"
           >
-            <ZoomIn size={16} className="text-text-white" />
+            <ZoomIn size={14} className="text-text-white" />
           </button>
           <button
             onClick={() => soundEffects.playClick() || zoomOut()}
-            className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+            className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
             title="Zoom Out"
           >
-            <ZoomOut size={16} className="text-text-white" />
+            <ZoomOut size={14} className="text-text-white" />
           </button>
           <button
             onClick={() => soundEffects.playWarp() || resetToEntry()}
-            className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+            className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
             title="Reset View"
           >
-            <RotateCcw size={14} className="text-text-white" />
+            <RotateCcw size={12} className="text-text-white" />
           </button>
         </div>
       )}
@@ -169,6 +169,7 @@ function App() {
   const wheelTimeout = useRef(null)
   const soundEffects = useSoundEffects()
   const backgroundMusic = useBackgroundMusic()
+  const [firstClick, setFirstClick] = useState(false)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -197,10 +198,15 @@ function App() {
   }, [isExplored])
 
   useEffect(() => {
-    if (backgroundMusic.isLoaded && !backgroundMusic.isPlaying) {
-      backgroundMusic.togglePlay()
+    const handleFirstClick = () => {
+      if (!firstClick && backgroundMusic.isLoaded) {
+        backgroundMusic.togglePlay()
+        setFirstClick(true)
+      }
     }
-  }, [backgroundMusic.isLoaded])
+    document.addEventListener('click', handleFirstClick, { once: true })
+    return () => document.removeEventListener('click', handleFirstClick)
+  }, [firstClick, backgroundMusic])
 
   return (
     <div className="w-full h-full relative flex items-center justify-center p-2">

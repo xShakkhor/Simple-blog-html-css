@@ -64,7 +64,7 @@ export default function UserInfoPanel() {
     <>
       <button
         onClick={() => setIsVisible(!isVisible)}
-        className="absolute top-14 right-4 z-30 glass-panel w-10 h-10 flex items-center justify-center hover:bg-cosmic-violet/30 transition-colors"
+        className="absolute bottom-24 left-4 z-30 glass-panel w-10 h-10 flex items-center justify-center hover:bg-cosmic-violet/30 transition-colors"
         title="User Info"
       >
         <Monitor size={18} className={isVisible ? 'text-cosmic-violet' : 'text-muted-slate'} />
@@ -73,10 +73,10 @@ export default function UserInfoPanel() {
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="absolute top-14 right-16 z-30 glass-panel p-4 w-64"
+            exit={{ opacity: 0, x: -20 }}
+            className="absolute bottom-24 left-16 z-30 glass-panel p-4 w-64"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">

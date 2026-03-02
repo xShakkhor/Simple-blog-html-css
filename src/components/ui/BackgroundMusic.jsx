@@ -15,10 +15,14 @@ export function useBackgroundMusic() {
     const audio = new Audio(MUSIC_URL)
     audio.loop = true
     audio.volume = volume
+    audio.preload = 'auto'
     
     const handleCanPlay = () => {
       setIsLoaded(true)
       setError(null)
+      audio.play().then(() => {
+        setIsPlaying(true)
+      }).catch(() => {})
     }
     
     const handleError = (e) => {
@@ -34,8 +38,6 @@ export function useBackgroundMusic() {
     audio.addEventListener('ended', handleEnded)
     
     audioRef.current = audio
-    
-    audio.play().catch(() => {})
     
     return () => {
       audio.pause()
