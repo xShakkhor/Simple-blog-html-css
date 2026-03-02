@@ -7,7 +7,7 @@ export default function UserInfoPanel() {
   const { isExplored } = usePortfolioStore()
   const [userInfo, setUserInfo] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [isVisible, setIsVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
 
   useEffect(() => {
     if (!isExplored) return

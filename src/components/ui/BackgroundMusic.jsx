@@ -6,7 +6,7 @@ const MUSIC_URL = '/music/cosmos-bg.mp3'
 
 export function useBackgroundMusic() {
   const audioRef = useRef(null)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(true)
   const [isLoaded, setIsLoaded] = useState(false)
   const [volume, setVolume] = useState(0.5)
   const [error, setError] = useState(null)
@@ -34,6 +34,8 @@ export function useBackgroundMusic() {
     audio.addEventListener('ended', handleEnded)
     
     audioRef.current = audio
+    
+    audio.play().catch(() => {})
     
     return () => {
       audio.pause()

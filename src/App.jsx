@@ -10,7 +10,7 @@ import ScreenshotButton from './components/ui/ScreenshotButton'
 import BackgroundMusic, { useBackgroundMusic } from './components/ui/BackgroundMusic'
 import UserInfoPanel from './components/ui/UserInfoPanel'
 import EntryPortal from './components/3d/EntryPortal'
-import { ZoomIn, ZoomOut, RotateCcw, Volume2, VolumeX, Music, Music2 } from 'lucide-react'
+import { ZoomIn, ZoomOut, RotateCcw, Volume2, VolumeX, Music, Music2, Globe } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSoundEffects } from './hooks/useSoundEffects'
 
@@ -76,94 +76,90 @@ function Header({ soundEffects, music }) {
   const { zoom, zoomIn, zoomOut, resetToEntry, isExplored } = usePortfolioStore()
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-30 px-4 py-3">
-      <div className="flex items-center justify-between max-w-[1800px] mx-auto">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-plasma-green animate-pulse"></div>
-            <h1 className="text-2xl font-bold tracking-[0.3em] text-gradient">
-              COSMOS
-            </h1>
-          </div>
-          <div className="h-6 w-px bg-gradient-to-b from-cosmic-violet/50 to-transparent"></div>
-          <SignalIndicator />
+    <div className="absolute top-0 left-0 right-0 z-30 px-4 py-2 flex items-center justify-between pointer-events-none">
+      <div className="flex items-center gap-4 pointer-events-auto">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-plasma-green animate-pulse"></div>
+          <h1 className="text-xl font-bold tracking-[0.3em] text-gradient">
+            COSMOS
+          </h1>
         </div>
+        <div className="h-5 w-px bg-gradient-to-b from-cosmic-violet/50 to-transparent"></div>
+        <SignalIndicator />
+      </div>
 
-        {isExplored && (
-          <div className="flex items-center gap-3">
-            {/* Background Music Control */}
-            <div className="flex items-center gap-2 glass-panel px-3 py-1.5">
-              <button
-                onClick={() => music.togglePlay()}
-                className="flex items-center justify-center hover:text-cosmic-violet transition-colors"
-                title={music.isPlaying ? 'Pause Music' : 'Play Music'}
-              >
-                {music.isPlaying ? (
-                  <Music2 size={16} className="text-cosmic-violet animate-pulse" />
-                ) : (
-                  <Music size={16} className="text-muted-slate" />
-                )}
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={music.volume}
-                onChange={(e) => music.setVolume(parseFloat(e.target.value))}
-                className="w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-cosmic-violet"
-                title={`Volume: ${Math.round(music.volume * 100)}%`}
-              />
-              <span className="text-xs text-cyan-nebula font-mono w-8">
-                {Math.round(music.volume * 100)}%
-              </span>
-            </div>
-            
-            {/* Sound Effects Toggle */}
+      {isExplored && (
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <div className="flex items-center gap-1.5 glass-panel px-2 py-1">
             <button
-              onClick={() => {
-                soundEffects.toggleMute()
-                soundEffects.playClick()
-              }}
-              className="w-9 h-9 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
-              title={soundEffects.isMuted ? 'Unmute' : 'Mute'}
+              onClick={() => music.togglePlay()}
+              className="flex items-center justify-center hover:text-cosmic-violet transition-colors"
+              title={music.isPlaying ? 'Pause Music' : 'Play Music'}
             >
-              {soundEffects.isMuted ? (
-                <VolumeX size={18} className="text-text-white" />
+              {music.isPlaying ? (
+                <Music2 size={14} className="text-cosmic-violet animate-pulse" />
               ) : (
-                <Volume2 size={18} className="text-text-white" />
+                <Music size={14} className="text-muted-slate" />
               )}
             </button>
-            
-            <div className="glass-panel px-3 py-1.5 flex items-center gap-2">
-              <span className="text-xs text-muted-slate font-mono">ZOOM</span>
-              <span className="text-xs text-cyan-nebula font-mono w-8 text-center">{zoom.toFixed(0)}x</span>
-            </div>
-            <button
-              onClick={() => soundEffects.playClick() || zoomIn()}
-              className="w-9 h-9 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
-              title="Zoom In"
-            >
-              <ZoomIn size={18} className="text-text-white" />
-            </button>
-            <button
-              onClick={() => soundEffects.playClick() || zoomOut()}
-              className="w-9 h-9 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
-              title="Zoom Out"
-            >
-              <ZoomOut size={18} className="text-text-white" />
-            </button>
-            <button
-              onClick={() => soundEffects.playWarp() || resetToEntry()}
-              className="w-9 h-9 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
-              title="Reset View"
-            >
-              <RotateCcw size={16} className="text-text-white" />
-            </button>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={music.volume}
+              onChange={(e) => music.setVolume(parseFloat(e.target.value))}
+              className="w-12 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-cosmic-violet"
+              title={`Volume: ${Math.round(music.volume * 100)}%`}
+            />
+            <span className="text-xs text-cyan-nebula font-mono w-7">
+              {Math.round(music.volume * 100)}%
+            </span>
           </div>
-        )}
-      </div>
-    </header>
+          
+          <button
+            onClick={() => {
+              soundEffects.toggleMute()
+              soundEffects.playClick()
+            }}
+            className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+            title={soundEffects.isMuted ? 'Unmute' : 'Mute'}
+          >
+            {soundEffects.isMuted ? (
+              <VolumeX size={16} className="text-text-white" />
+            ) : (
+              <Volume2 size={16} className="text-text-white" />
+            )}
+          </button>
+
+          <div className="glass-panel px-2 py-1 flex items-center gap-1.5">
+            <span className="text-xs text-muted-slate font-mono">ZOOM</span>
+            <span className="text-xs text-cyan-nebula font-mono w-6 text-center">{zoom.toFixed(0)}x</span>
+          </div>
+          <button
+            onClick={() => soundEffects.playClick() || zoomIn()}
+            className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+            title="Zoom In"
+          >
+            <ZoomIn size={16} className="text-text-white" />
+          </button>
+          <button
+            onClick={() => soundEffects.playClick() || zoomOut()}
+            className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+            title="Zoom Out"
+          >
+            <ZoomOut size={16} className="text-text-white" />
+          </button>
+          <button
+            onClick={() => soundEffects.playWarp() || resetToEntry()}
+            className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+            title="Reset View"
+          >
+            <RotateCcw size={14} className="text-text-white" />
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -200,10 +196,14 @@ function App() {
     }
   }, [isExplored])
 
+  useEffect(() => {
+    if (backgroundMusic.isLoaded && !backgroundMusic.isPlaying) {
+      backgroundMusic.togglePlay()
+    }
+  }, [backgroundMusic.isLoaded])
+
   return (
-    <div className="w-full h-full relative flex items-center justify-center p-2 pt-14 pb-16">
-      <Header soundEffects={soundEffects} music={backgroundMusic} />
-      
+    <div className="w-full h-full relative flex items-center justify-center p-2">
       <div className="relative w-full h-full max-w-[1400px] max-h-[800px]">
         <div className="absolute inset-0 rounded-xl border border-cosmic-violet/40 shadow-[0_0_20px_rgba(124,58,237,0.4),inset_0_0_20px_rgba(124,58,237,0.15)] pointer-events-none z-20"></div>
         <div className="absolute inset-[3px] rounded-lg border border-cyan-nebula/30 shadow-[0_0_15px_rgba(6,182,212,0.25)] pointer-events-none z-20"></div>
@@ -211,6 +211,8 @@ function App() {
         <div className="absolute top-0 right-0 w-5 h-5 border-r border-t border-cosmic-violet rounded-tr z-20"></div>
         <div className="absolute bottom-0 left-0 w-5 h-5 border-l border-b border-cosmic-violet rounded-bl z-20"></div>
         <div className="absolute bottom-0 right-0 w-5 h-5 border-r border-b border-cosmic-violet rounded-br z-20"></div>
+        
+        <Header soundEffects={soundEffects} music={backgroundMusic} />
         
         <div className="absolute inset-0 rounded-xl overflow-hidden bg-space-black">
           <Canvas
@@ -252,7 +254,6 @@ function App() {
         <StatsMonitor />
         <ScreenshotButton />
         <UserInfoPanel />
-        <BackgroundMusic music={backgroundMusic} />
       </div>
     </div>
   )
