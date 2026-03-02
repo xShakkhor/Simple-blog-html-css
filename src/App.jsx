@@ -260,6 +260,7 @@ function App() {
         <StatsMonitor />
         <ScreenshotButton />
         <UserInfoPanel />
+        <BackgroundMusic music={backgroundMusic} />
       </div>
     </div>
   )
