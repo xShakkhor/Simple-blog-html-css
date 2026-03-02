@@ -20,7 +20,7 @@ const cameraPositions = {
 
 export default function Scene() {
   const { camera } = useThree()
-  const { currentSection } = usePortfolioStore()
+  const { currentSection, zoom } = usePortfolioStore()
   const [isMobile, setIsMobile] = useState(false)
   const targetPosition = useRef([0, 0, 20])
   const currentPos = useRef([0, 0, 20])
@@ -40,11 +40,12 @@ export default function Scene() {
 
   useFrame((state, delta) => {
     const target = targetPosition.current
+    const zoomOffset = zoom - 20
     
     currentPos.current = [
       currentPos.current[0] + (target[0] - currentPos.current[0]) * delta * 2,
       currentPos.current[1] + (target[1] - currentPos.current[1]) * delta * 2,
-      currentPos.current[2] + (target[2] - currentPos.current[2]) * delta * 2
+      currentPos.current[2] + ((target[2] + zoomOffset) - currentPos.current[2]) * delta * 2
     ]
     
     camera.position.set(...currentPos.current)

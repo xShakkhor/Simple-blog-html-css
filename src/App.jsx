@@ -5,34 +5,125 @@ import { usePortfolioStore } from './store/usePortfolioStore'
 import Scene from './components/3d/Scene'
 import HUD from './components/ui/HUD'
 import EntryPortal from './components/3d/EntryPortal'
-import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
+import { ZoomIn, ZoomOut, RotateCcw, Wifi, WifiOff } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
-function CameraController({ zoom, setZoom }) {
-  const { camera } = useThree()
-  const targetZoom = useRef(20)
-  
+function SignalIndicator() {
+  const [isOnline, setIsOnline] = useState(true)
+  const [showDisconnected, setShowDisconnected] = useState(false)
+
   useEffect(() => {
-    const handleWheel = (e) => {
-      e.preventDefault()
-      targetZoom.current = Math.max(5, Math.min(40, targetZoom.current + e.deltaY * 0.01))
-      setZoom(targetZoom.current)
+    const checkConnection = () => {
+      const random = Math.random()
+      if (random > 0.85) {
+        setIsOnline(false)
+        setShowDisconnected(true)
+        setTimeout(() => {
+          setIsOnline(true)
+          setShowDisconnected(false)
+        }, 150 + Math.random() * 200)
+      }
     }
     
-    window.addEventListener('wheel', handleWheel, { passive: false })
-    return () => window.removeEventListener('wheel', handleWheel)
-  }, [setZoom])
-  
-  useFrame(() => {
-    camera.position.z += (targetZoom.current - camera.position.z) * 0.1
-  })
-  
-  return null
+    const interval = setInterval(checkConnection, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="flex items-center gap-2">
+      <AnimatePresence mode="wait">
+        {showDisconnected ? (
+          <motion.div
+            key="offline"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="flex items-center gap-1.5"
+          >
+            <WifiOff size={14} className="text-red-500" />
+            <span className="text-xs text-red-400 font-mono">SIGNAL LOST</span>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="online"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="flex items-center gap-1.5"
+          >
+            <div className="relative">
+              <div className="w-2 h-2 rounded-full bg-plasma-green"></div>
+              <motion.div
+                className="absolute inset-0 w-2 h-2 rounded-full bg-plasma-green"
+                animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              />
+            </div>
+            <span className="text-xs text-plasma-green font-mono">ONLINE</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function Header() {
+  const { zoom, zoomIn, zoomOut, resetToEntry, isExplored } = usePortfolioStore()
+
+  return (
+    <header className="absolute top-0 left-0 right-0 z-30 px-4 py-3">
+      <div className="flex items-center justify-between max-w-[1800px] mx-auto">
+        {/* Logo Section */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-plasma-green animate-pulse"></div>
+            <h1 className="text-2xl font-bold tracking-[0.3em] text-gradient">
+              COSMOS
+            </h1>
+          </div>
+          <div className="h-6 w-px bg-gradient-to-b from-cosmic-violet/50 to-transparent"></div>
+          <SignalIndicator />
+        </div>
+
+        {/* Controls Section */}
+        {isExplored && (
+          <div className="flex items-center gap-3">
+            <div className="glass-panel px-3 py-1.5 flex items-center gap-2">
+              <span className="text-xs text-muted-slate font-mono">ZOOM</span>
+              <span className="text-xs text-cyan-nebula font-mono w-8 text-center">{zoom.toFixed(0)}x</span>
+            </div>
+            <button
+              onClick={zoomIn}
+              className="w-9 h-9 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+              title="Zoom In"
+            >
+              <ZoomIn size={18} className="text-text-white" />
+            </button>
+            <button
+              onClick={zoomOut}
+              className="w-9 h-9 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+              title="Zoom Out"
+            >
+              <ZoomOut size={18} className="text-text-white" />
+            </button>
+            <button
+              onClick={resetToEntry}
+              className="w-9 h-9 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all hover:scale-110"
+              title="Reset View"
+            >
+              <RotateCcw size={16} className="text-text-white" />
+            </button>
+          </div>
+        )}
+      </div>
+    </header>
+  )
 }
 
 function App() {
   const { isLoaded, setIsLoaded, currentSection, isExplored } = usePortfolioStore()
-  const [zoom, setZoom] = useState(20)
   const [isMobile, setIsMobile] = useState(false)
+  const wheelTimeout = useRef(null)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -43,20 +134,34 @@ function App() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const handleZoomIn = () => {
-    setZoom(prev => Math.max(5, prev - 3))
-  }
-
-  const handleZoomOut = () => {
-    setZoom(prev => Math.min(40, prev + 3))
-  }
-
-  const handleReset = () => {
-    setZoom(20)
-  }
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (!isExplored) return
+      
+      if (wheelTimeout.current) clearTimeout(wheelTimeout.current)
+      
+      const { zoomIn, zoomOut } = usePortfolioStore.getState()
+      
+      if (e.deltaY < 0) {
+        zoomIn()
+      } else {
+        zoomOut()
+      }
+      
+      wheelTimeout.current = setTimeout(() => {}, 100)
+    }
+    
+    window.addEventListener('wheel', handleWheel, { passive: true })
+    return () => {
+      window.removeEventListener('wheel', handleWheel)
+      if (wheelTimeout.current) clearTimeout(wheelTimeout.current)
+    }
+  }, [isExplored])
 
   return (
-    <div className="w-full h-full relative flex items-center justify-center p-4">
+    <div className="w-full h-full relative flex items-center justify-center p-4 pt-16 pb-20">
+      <Header />
+      
       {/* Beautiful border frame */}
       <div className="relative w-full h-full max-w-[1800px] max-h-[1000px]">
         {/* Outer decorative border */}
@@ -81,8 +186,6 @@ function App() {
             <color attach="background" args={['#030014']} />
             <fog attach="fog" args={['#030014', 15, 80]} />
             
-            <CameraController zoom={zoom} setZoom={setZoom} />
-            
             <Suspense fallback={null}>
               {!isExplored ? (
                 <EntryPortal onComplete={() => {
@@ -94,33 +197,6 @@ function App() {
             </Suspense>
           </Canvas>
         </div>
-        
-        {/* Zoom Controls */}
-        {isExplored && (
-          <div className="absolute top-4 right-4 flex flex-col gap-2 z-30">
-            <button
-              onClick={handleZoomIn}
-              className="w-10 h-10 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-colors"
-              title="Zoom In"
-            >
-              <ZoomIn size={20} className="text-text-white" />
-            </button>
-            <button
-              onClick={handleZoomOut}
-              className="w-10 h-10 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-colors"
-              title="Zoom Out"
-            >
-              <ZoomOut size={20} className="text-text-white" />
-            </button>
-            <button
-              onClick={handleReset}
-              className="w-10 h-10 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-colors"
-              title="Reset View"
-            >
-              <RotateCcw size={18} className="text-text-white" />
-            </button>
-          </div>
-        )}
         
         {/* Mobile hint */}
         {isMobile && isExplored && (
