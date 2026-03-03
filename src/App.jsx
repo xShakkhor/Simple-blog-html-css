@@ -7,6 +7,10 @@ import HUD from './components/ui/HUD'
 import SpaceRadar from './components/ui/SpaceRadar'
 import StatsMonitor from './components/ui/StatsMonitor'
 import ScreenshotButton from './components/ui/ScreenshotButton'
+import MissionMode from './components/ui/MissionMode'
+import CopilotTerminal from './components/ui/CopilotTerminal'
+import UniverseEvents from './components/ui/UniverseEvents'
+import CursorTrail from './components/ui/CursorTrail'
 import BackgroundMusic, { useBackgroundMusic } from './components/ui/BackgroundMusic'
 import UserInfoPanel from './components/ui/UserInfoPanel'
 import EntryPortal from './components/3d/EntryPortal'
@@ -72,7 +76,7 @@ function SignalIndicator() {
   )
 }
 
-function Header({ soundEffects, music }) {
+function Header({ soundEffects, music, cursorPreset, onToggleCursorPreset, controlsDisabled }) {
   const { zoom, zoomIn, zoomOut, resetToEntry, isExplored } = usePortfolioStore()
 
   return (
@@ -89,7 +93,7 @@ function Header({ soundEffects, music }) {
       </div>
 
       {isExplored && (
-        <div className="flex items-center gap-1.5 pointer-events-auto">
+        <div className={`flex items-center gap-1.5 pointer-events-auto transition-opacity ${controlsDisabled ? 'opacity-35 pointer-events-none' : 'opacity-100'}`}>
           <div className="flex items-center gap-1 glass-panel px-2 py-1">
             <button
               onClick={() => music.togglePlay()}
@@ -157,6 +161,13 @@ function Header({ soundEffects, music }) {
           >
             <RotateCcw size={12} className="text-text-white" />
           </button>
+          <button
+            onClick={onToggleCursorPreset}
+            className="glass-panel px-2 py-1 text-[10px] font-mono text-cyan-nebula hover:bg-cosmic-violet/30 transition-all"
+            title="Toggle cursor preset"
+          >
+            CURSOR {cursorPreset === 'intense' ? 'INTENSE' : 'SUBTLE'}
+          </button>
         </div>
       )}
     </div>
@@ -170,6 +181,8 @@ function App() {
   const soundEffects = useSoundEffects()
   const backgroundMusic = useBackgroundMusic()
   const [firstClick, setFirstClick] = useState(false)
+  const [cursorPreset, setCursorPreset] = useState('intense')
+  const [activeEvent, setActiveEvent] = useState(null)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -208,19 +221,33 @@ function App() {
     return () => document.removeEventListener('click', handleFirstClick)
   }, [firstClick, backgroundMusic])
 
+  const handleToggleCursorPreset = () => {
+    setCursorPreset((prev) => (prev === 'intense' ? 'subtle' : 'intense'))
+  }
+
+  const isBlackout = activeEvent === 'comms-blackout'
+  const isFlare = activeEvent === 'solar-flare'
+  const isMeteorShake = activeEvent === 'meteor-shower'
+
   return (
     <div className="w-full h-full relative flex items-center justify-center p-2">
-      <div className="relative w-full h-full max-w-[1400px] max-h-[800px]">
-        <div className="absolute inset-0 rounded-xl border border-cosmic-violet/40 shadow-[0_0_20px_rgba(124,58,237,0.4),inset_0_0_20px_rgba(124,58,237,0.15)] pointer-events-none z-20"></div>
+      <div className={`relative w-full h-full max-w-[1400px] max-h-[800px] ${isMeteorShake ? 'animate-camera-shake' : ''}`}>
+        <div className={`absolute inset-0 rounded-xl border border-cosmic-violet/40 pointer-events-none z-20 transition-all ${isFlare ? 'shadow-[0_0_34px_rgba(245,158,11,0.65),inset_0_0_28px_rgba(245,158,11,0.35)]' : 'shadow-[0_0_20px_rgba(124,58,237,0.4),inset_0_0_20px_rgba(124,58,237,0.15)]'}`}></div>
         <div className="absolute inset-[3px] rounded-lg border border-cyan-nebula/30 shadow-[0_0_15px_rgba(6,182,212,0.25)] pointer-events-none z-20"></div>
         <div className="absolute top-0 left-0 w-5 h-5 border-l border-t border-cosmic-violet rounded-tl z-20"></div>
         <div className="absolute top-0 right-0 w-5 h-5 border-r border-t border-cosmic-violet rounded-tr z-20"></div>
         <div className="absolute bottom-0 left-0 w-5 h-5 border-l border-b border-cosmic-violet rounded-bl z-20"></div>
         <div className="absolute bottom-0 right-0 w-5 h-5 border-r border-b border-cosmic-violet rounded-br z-20"></div>
         
-        <Header soundEffects={soundEffects} music={backgroundMusic} />
+        <Header
+          soundEffects={soundEffects}
+          music={backgroundMusic}
+          cursorPreset={cursorPreset}
+          onToggleCursorPreset={handleToggleCursorPreset}
+          controlsDisabled={isBlackout}
+        />
         
-        <div className="absolute inset-0 rounded-xl overflow-hidden bg-space-black">
+        <div className={`absolute inset-0 rounded-xl overflow-hidden bg-space-black transition-all ${isFlare ? 'saturate-150 brightness-110' : ''}`}>
           <Canvas
             camera={{ position: [0, 0, 20], fov: isMobile ? 50 : 60 }}
             dpr={[1, isMobile ? 1.5 : 2]}
@@ -255,13 +282,17 @@ function App() {
           dataStyles={{ color: '#F8FAFC', fontFamily: 'Space Grotesk' }}
         />
         
-        {isExplored && <HUD />}
-        <SpaceRadar />
-        <StatsMonitor />
-        <ScreenshotButton />
-        <UserInfoPanel />
-        <BackgroundMusic music={backgroundMusic} />
+        {isExplored && !isBlackout && <HUD />}
+        {!isBlackout && <MissionMode />}
+        {!isBlackout && <SpaceRadar />}
+        {!isBlackout && <StatsMonitor />}
+        {!isBlackout && <ScreenshotButton />}
+        {!isBlackout && <UserInfoPanel />}
+        {!isBlackout && <BackgroundMusic music={backgroundMusic} />}
+        {!isBlackout && <CopilotTerminal />}
+        <UniverseEvents onEventChange={setActiveEvent} />
       </div>
+      <CursorTrail preset={cursorPreset} />
     </div>
   )
 }

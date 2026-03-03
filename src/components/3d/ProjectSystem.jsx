@@ -2,23 +2,26 @@ import { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import { portfolioData } from '../../data/content'
+import { usePortfolioStore } from '../../store/usePortfolioStore'
 import * as THREE from 'three'
 
 function ProjectMoon({ project, index, total }) {
+  const orbitRef = useRef()
   const meshRef = useRef()
   const [hovered, setHovered] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
+  const { markMissionStep } = usePortfolioStore()
   
   const orbitRadius = 4 + (index % 3) * 1.5
   const orbitSpeed = 0.2 + index * 0.05
   const orbitOffset = (index / total) * Math.PI * 2
   
   useFrame((state) => {
-    if (meshRef.current) {
+    if (orbitRef.current && meshRef.current) {
       const t = state.clock.elapsedTime * orbitSpeed + orbitOffset
-      meshRef.current.position.x = Math.cos(t) * orbitRadius
-      meshRef.current.position.z = Math.sin(t) * orbitRadius
-      meshRef.current.position.y = Math.sin(t * 0.5) * 0.5
+      orbitRef.current.position.x = Math.cos(t) * orbitRadius
+      orbitRef.current.position.z = Math.sin(t) * orbitRadius
+      orbitRef.current.position.y = Math.sin(t * 0.5) * 0.5
       
       meshRef.current.rotation.y += 0.02
       
@@ -31,12 +34,18 @@ function ProjectMoon({ project, index, total }) {
   })
 
   return (
-    <group>
+    <group ref={orbitRef}>
       <mesh
         ref={meshRef}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
-        onClick={() => setShowDetails(!showDetails)}
+        onClick={() => {
+          setShowDetails((prev) => {
+            const next = !prev
+            if (next) markMissionStep('projectUnlocked')
+            return next
+          })
+        }}
       >
         <sphereGeometry args={[0.4, 32, 32]} />
         <meshStandardMaterial
@@ -49,7 +58,7 @@ function ProjectMoon({ project, index, total }) {
       </mesh>
       
       {hovered && (
-        <Html position={[meshRef.current?.position.x || 0, 0.8, meshRef.current?.position.z || 0]}>
+        <Html position={[0, 0.8, 0]} center>
           <div className="glass-panel px-3 py-2 -mt-8">
             <span className="text-sm font-medium text-text-white">
               {project.title}
@@ -59,7 +68,7 @@ function ProjectMoon({ project, index, total }) {
       )}
       
       {showDetails && (
-        <Html position={[meshRef.current?.position.x || 0, 0, meshRef.current?.position.z || 0]}>
+        <Html position={[0, 0, 0]} center>
           <div className="glass-panel p-4 w-64 -ml-32 -mt-32">
             <h3 className="text-lg font-bold mb-2" style={{ color: project.color }}>
               {project.title}

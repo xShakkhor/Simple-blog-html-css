@@ -67,6 +67,29 @@ html, body, #root {
   50% { transform: translateY(-10px); }
 }
 
+@keyframes meteor-sweep {
+  0% {
+    transform: translateX(0) rotate(-16deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(calc(100vw + 220px)) rotate(-16deg);
+    opacity: 0;
+  }
+}
+
+@keyframes camera-shake {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, -2px); }
+  80% { transform: translate(1px, 2px); }
+  100% { transform: translate(0, 0); }
+}
+
 .animate-glitch {
   animation: glitch 0.3s ease-in-out infinite;
 }
@@ -81,6 +104,20 @@ html, body, #root {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+.animate-camera-shake {
+  animation: camera-shake 0.18s linear infinite;
+}
+
+.custom-cursor-enabled,
+.custom-cursor-enabled body,
+.custom-cursor-enabled button,
+.custom-cursor-enabled a,
+.custom-cursor-enabled input,
+.custom-cursor-enabled textarea,
+.custom-cursor-enabled [role='button'] {
+  cursor: none !important;
 }
 
 ::-webkit-scrollbar {

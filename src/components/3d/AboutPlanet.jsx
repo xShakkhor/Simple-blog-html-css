@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html, Float } from '@react-three/drei'
 import { portfolioData } from '../../data/content'
+import { usePortfolioStore } from '../../store/usePortfolioStore'
 import * as THREE from 'three'
 
 const vertexShader = `
@@ -65,6 +66,7 @@ export default function AboutPlanet({ position, scale }) {
   const atmosphereRef = useRef()
   const [showBio, setShowBio] = useState(false)
   const [hovered, setHovered] = useState(false)
+  const { markMissionStep } = usePortfolioStore()
   
   const uniforms = {
     uTime: { value: 0 }
@@ -87,7 +89,13 @@ export default function AboutPlanet({ position, scale }) {
           ref={meshRef}
           onPointerOver={() => setHovered(true)}
           onPointerOut={() => setHovered(false)}
-          onClick={() => setShowBio(!showBio)}
+          onClick={() => {
+            setShowBio((prev) => {
+              const next = !prev
+              if (next) markMissionStep('aboutScanned')
+              return next
+            })
+          }}
         >
           <sphereGeometry args={[1.5, 64, 64]} />
           <shaderMaterial

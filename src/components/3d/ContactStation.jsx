@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import { portfolioData } from '../../data/content'
+import { usePortfolioStore } from '../../store/usePortfolioStore'
 import { Send, Github, Linkedin, Mail } from 'lucide-react'
 import * as THREE from 'three'
 
@@ -11,6 +12,7 @@ export default function ContactStation({ position, scale }) {
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
   const [sent, setSent] = useState(false)
+  const { markMissionStep } = usePortfolioStore()
   
   useFrame((state) => {
     if (stationRef.current) {
@@ -108,7 +110,13 @@ export default function ContactStation({ position, scale }) {
       
       <Html position={[0, 0, 2]} center>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setShowForm((prev) => {
+              const next = !prev
+              if (next) markMissionStep('contactDocked')
+              return next
+            })
+          }}
           className="glass-panel px-6 py-3 text-text-white hover:bg-white/10 transition-colors"
         >
           {showForm ? 'Close Panel' : 'Open Transmission'}
