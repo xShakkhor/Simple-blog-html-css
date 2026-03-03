@@ -9,8 +9,6 @@ import SkillsNebula from './SkillsNebula'
 import ProjectSystem from './ProjectSystem'
 import ExperienceBelt from './ExperienceBelt'
 import ContactStation from './ContactStation'
-import RocketScout from './RocketScout'
-import HeroRocket from './HeroRocket'
 
 const cameraPositions = {
   entry: [0, 0, 20],
@@ -88,8 +86,6 @@ export default function Scene() {
       <ProjectSystem position={[0, 0, 0]} scale={1} />
       <ExperienceBelt position={experiencePos} scale={experienceScale} />
       <ContactStation position={contactPos} scale={contactScale} />
-      <HeroRocket position={isMobile ? [1.1, 0.5, 2.6] : [1.4, 0.8, 3.2]} scale={isMobile ? 2.1 : 2.8} />
-      <RocketScout radius={isMobile ? 4.2 : 5.5} speed={isMobile ? 0.28 : 0.35} scale={isMobile ? 1.9 : 2.4} />
     </>
   )
 }
