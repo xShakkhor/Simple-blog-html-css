@@ -13,84 +13,30 @@ export default function UserInfoPanel() {
     if (!isExplored) return
 
     const fetchUserInfo = async () => {
-      const apis = [
-        {
-          url: 'https://ipwho.is/',
-          parser: (data) => {
-            if (data.success) {
-              return {
-                ip: data.ip,
-                city: data.city,
-                country: data.country,
-                timezone: data.timezone?.id,
-                org: data.connection?.isp || data.connection?.org,
-              }
-            }
-            return null
-          },
-        },
-        {
-          url: 'https://ipapi.co/json/',
-          parser: (data) => {
-            if (data.ip) {
-              return {
-                ip: data.ip,
-                city: data.city,
-                country: data.country_name,
-                timezone: data.timezone,
-                org: data.org,
-              }
-            }
-            return null
-          },
-        },
-        {
-          url: 'https://ipapi.com/json/',
-          parser: (data) => {
-            if (data.ip) {
-              return {
-                ip: data.ip,
-                city: data.city,
-                country: data.country_name,
-                timezone: data.timezone,
-                org: data.org,
-              }
-            }
-            return null
-          },
-        },
-      ]
-
-      for (const api of apis) {
-        try {
-          console.log('Trying API:', api.url)
-          const response = await fetch(api.url)
-          console.log('Response status:', response.status, api.url)
-          if (response.ok) {
-            const data = await response.json()
-            console.log('Response data:', data, api.url)
-            const parsed = api.parser(data)
-            if (parsed && parsed.ip) {
-              console.log('Parsed user info:', parsed)
-              setUserInfo(parsed)
-              setLoading(false)
-              return
-            }
-          }
-        } catch (err) {
-          console.error('API error:', err.message, api.url)
-          continue
-        }
-      }
-
-      console.log('All APIs failed, using local browser info')
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+      const locale = navigator.language || 'en-US'
+      const platform = navigator.platform || 'Unknown'
+      const cores = navigator.hardwareConcurrency || 'Unknown'
+      const memory = navigator.deviceMemory || 'Unknown'
+      
+      const userAgent = navigator.userAgent
+      let browser = 'Unknown'
+      if (userAgent.includes('Chrome')) browser = 'Chrome'
+      else if (userAgent.includes('Firefox')) browser = 'Firefox'
+      else if (userAgent.includes('Safari')) browser = 'Safari'
+      else if (userAgent.includes('Edge')) browser = 'Edge'
+      
       const localInfo = {
-        ip: '127.0.0.1',
-        city: 'Local',
-        country: 'Network',
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        org: 'Local Device',
+        ip: 'Local Session',
+        city: timezone.split('/')[1]?.replace('_', ' ') || 'Local',
+        country: locale.split('-')[1] || 'Unknown',
+        timezone: timezone,
+        org: `${browser} on ${platform}`,
+        cores: cores,
+        memory: memory,
+        language: locale,
       }
+      
       setUserInfo(localInfo)
       setLoading(false)
     }
@@ -124,12 +70,6 @@ export default function UserInfoPanel() {
       return '---'
     }
   }
-
-  const locationLabel = userInfo?.city && userInfo?.country
-    ? `${userInfo.city}, ${userInfo.country}`
-    : 'Location hidden'
-
-  const networkLabel = userInfo?.org || 'Secure relay unavailable'
 
   return (
     <>
@@ -181,24 +121,24 @@ export default function UserInfoPanel() {
                 <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3">
                   <Wifi size={14} className="text-plasma-green" />
                   <div>
-                    <div className="text-xs text-muted-slate">IP Address</div>
-                    <div className="text-sm font-mono text-text-white">{userInfo?.ip || 'Local relay masked'}</div>
+                    <div className="text-xs text-muted-slate">Session</div>
+                    <div className="text-sm font-mono text-text-white">{userInfo?.ip || 'Local Session'}</div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3">
                   <MapPin size={14} className="text-star-gold" />
                   <div>
-                    <div className="text-xs text-muted-slate">Location</div>
-                    <div className="text-sm text-text-white">{locationLabel}</div>
+                    <div className="text-xs text-muted-slate">Timezone</div>
+                    <div className="text-sm text-text-white">{userInfo?.timezone || 'Unknown'}</div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3">
                   <Clock size={14} className="text-cyan-nebula" />
                   <div>
-                    <div className="text-xs text-muted-slate">Time</div>
-                    <div className="text-sm text-text-white font-mono">
+                    <div className="text-xs text-muted-slate">Local Time</div>
+                    <div className="text-sm font-mono text-text-white">
                       {formatTime(userInfo?.timezone)}
                       <span className="text-xs text-muted-slate ml-2">
                         {formatDate(userInfo?.timezone)}
@@ -210,18 +150,20 @@ export default function UserInfoPanel() {
                 <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3">
                   <Monitor size={14} className="text-cosmic-violet" />
                   <div>
-                    <div className="text-xs text-muted-slate">Network</div>
+                    <div className="text-xs text-muted-slate">Browser</div>
                     <div className="text-xs text-text-white truncate">
-                      {networkLabel}
+                      {userInfo?.org || 'Unknown'}
                     </div>
                   </div>
                 </div>
 
-                {!userInfo && (
-                  <div className="rounded-xl border border-dashed border-white/10 bg-space-black/30 px-3 py-2 text-[11px] leading-relaxed text-muted-slate">
-                    External geo lookup is unavailable, so this panel falls back to privacy-safe local placeholders.
+                <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3">
+                  <Globe size={14} className="text-plasma-green" />
+                  <div>
+                    <div className="text-xs text-muted-slate">Language</div>
+                    <div className="text-sm text-text-white">{userInfo?.language || 'Unknown'}</div>
                   </div>
-                )}
+                </div>
               </div>
             )}
           </motion.div>
