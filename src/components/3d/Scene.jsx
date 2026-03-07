@@ -12,11 +12,11 @@ import ContactStation from './ContactStation'
 
 const cameraPositions = {
   entry: [0, 0, 20],
-  about: [0, 0, 12],
-  skills: [12, 0, 10],
-  projects: [-8, 4, 12],
-  experience: [8, -4, 12],
-  contact: [-3, -5, 12]
+  about: [0, 0, 14],
+  skills: [8, 0, 12],
+  projects: [-6, 3, 14],
+  experience: [6, -3, 14],
+  contact: [-2, -4, 14]
 }
 
 export default function Scene() {
@@ -53,14 +53,14 @@ export default function Scene() {
     camera.lookAt(0, 0, 0)
   })
 
-  const aboutPos = isMobile ? [-4, 1, 0] : [-6, 0, 0]
-  const skillsPos = isMobile ? [4, 1, -2] : [6, 0, -2]
-  const experiencePos = isMobile ? [0, -4, 2] : [0, -6, 2]
-  const contactPos = isMobile ? [2.2, 5.4, -4.2] : [3.8, 6.2, -5.2]
-  const aboutScale = isMobile ? 1.8 : 2.5
-  const skillsScale = isMobile ? 1.2 : 1.5
-  const experienceScale = isMobile ? 1 : 1.2
-  const contactScale = isMobile ? 1.1 : 1.3
+  const aboutPos = isMobile ? [-2, 2, 8] : [-6, 0, 0]
+  const skillsPos = isMobile ? [3, 2, -1] : [6, 0, -2]
+  const experiencePos = isMobile ? [0, -3, 4] : [0, -6, 2]
+  const contactPos = isMobile ? [2, 4, -3] : [3.8, 6.2, -5.2]
+  const aboutScale = isMobile ? 1.2 : 2.5
+  const skillsScale = isMobile ? 0.8 : 1.5
+  const experienceScale = isMobile ? 0.7 : 1.2
+  const contactScale = isMobile ? 0.8 : 1.3
 
   return (
     <>

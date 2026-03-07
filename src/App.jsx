@@ -77,98 +77,141 @@ function SignalIndicator() {
   )
 }
 
-function Header({ soundEffects, music, cursorPreset, onToggleCursorPreset, controlsDisabled }) {
+function Header({ soundEffects, music, cursorPreset, onToggleCursorPreset, controlsDisabled, isMobile }) {
   const { zoom, zoomIn, zoomOut, resetToEntry, isExplored } = usePortfolioStore()
 
   return (
-    <div className="absolute top-1 left-1 right-1 z-30 px-3 py-1.5 flex items-center justify-between pointer-events-none rounded-t-lg bg-space-black/80">
-      <div className="flex items-center gap-3 pointer-events-auto">
-        <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-plasma-green animate-pulse"></div>
-          <h1 className="text-lg font-bold tracking-[0.2em] text-gradient">
+    <div className="absolute top-1 left-1 right-1 z-30 px-2 py-1 flex items-center justify-between pointer-events-none rounded-t-lg bg-space-black/80">
+      <div className="flex items-center gap-2 pointer-events-auto">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-plasma-green animate-pulse"></div>
+          <h1 className={`font-bold tracking-[0.2em] text-gradient ${isMobile ? 'text-sm' : 'text-lg'}`}>
             COSMOS
           </h1>
         </div>
-        <div className="h-4 w-px bg-gradient-to-b from-cosmic-violet/50 to-transparent"></div>
-        <SignalIndicator />
+        <div className={`h-4 w-px bg-gradient-to-b from-cosmic-violet/50 to-transparent ${isMobile ? 'hidden' : ''}`}></div>
+        {!isMobile && <SignalIndicator />}
       </div>
 
       {isExplored && (
-        <div className={`flex items-center gap-1.5 pointer-events-auto transition-opacity ${controlsDisabled ? 'opacity-35 pointer-events-none' : 'opacity-100'}`}>
-          <div className="flex items-center gap-1 glass-panel px-2 py-1">
-            <button
-              onClick={() => music.togglePlay()}
-              className="flex items-center justify-center hover:text-cosmic-violet transition-colors"
-              title={music.isPlaying ? 'Pause Music' : 'Play Music'}
-            >
-              {music.isPlaying ? (
-                <Music2 size={13} className="text-cosmic-violet animate-pulse" />
-              ) : (
-                <Music size={13} className="text-muted-slate" />
-              )}
-            </button>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={music.volume}
-              onChange={(e) => music.setVolume(parseFloat(e.target.value))}
-              className="w-10 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-cosmic-violet"
-              title={`Volume: ${Math.round(music.volume * 100)}%`}
-            />
-            <span className="text-xs text-cyan-nebula font-mono w-6">
-              {Math.round(music.volume * 100)}%
-            </span>
-          </div>
-          
-          <button
-            onClick={() => {
-              soundEffects.toggleMute()
-              soundEffects.playClick()
-            }}
-            className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
-            title={soundEffects.isMuted ? 'Unmute' : 'Mute'}
-          >
-            {soundEffects.isMuted ? (
-              <VolumeX size={14} className="text-text-white" />
-            ) : (
-              <Volume2 size={14} className="text-text-white" />
-            )}
-          </button>
+        <div className={`flex items-center gap-1 pointer-events-auto transition-opacity ${controlsDisabled ? 'opacity-35 pointer-events-none' : 'opacity-100'}`}>
+          {isMobile ? (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => music.togglePlay()}
+                className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
+                title={music.isPlaying ? 'Pause Music' : 'Play Music'}
+              >
+                {music.isPlaying ? (
+                  <Music2 size={14} className="text-cosmic-violet animate-pulse" />
+                ) : (
+                  <Music size={14} className="text-muted-slate" />
+                )}
+              </button>
+              <button
+                onClick={() => soundEffects.toggleMute()}
+                className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
+                title={soundEffects.isMuted ? 'Unmute' : 'Mute'}
+              >
+                {soundEffects.isMuted ? (
+                  <VolumeX size={14} className="text-text-white" />
+                ) : (
+                  <Volume2 size={14} className="text-text-white" />
+                )}
+              </button>
+              <button
+                onClick={() => soundEffects.playClick() || zoomIn()}
+                className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
+                title="Zoom In"
+              >
+                <ZoomIn size={14} className="text-text-white" />
+              </button>
+              <button
+                onClick={() => soundEffects.playClick() || zoomOut()}
+                className="w-8 h-8 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
+                title="Zoom Out"
+              >
+                <ZoomOut size={14} className="text-text-white" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-1 glass-panel px-2 py-1">
+                <button
+                  onClick={() => music.togglePlay()}
+                  className="flex items-center justify-center hover:text-cosmic-violet transition-colors"
+                  title={music.isPlaying ? 'Pause Music' : 'Play Music'}
+                >
+                  {music.isPlaying ? (
+                    <Music2 size={13} className="text-cosmic-violet animate-pulse" />
+                  ) : (
+                    <Music size={13} className="text-muted-slate" />
+                  )}
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={music.volume}
+                  onChange={(e) => music.setVolume(parseFloat(e.target.value))}
+                  className="w-10 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-cosmic-violet"
+                  title={`Volume: ${Math.round(music.volume * 100)}%`}
+                />
+                <span className="text-xs text-cyan-nebula font-mono w-6">
+                  {Math.round(music.volume * 100)}%
+                </span>
+              </div>
+              
+              <button
+                onClick={() => {
+                  soundEffects.toggleMute()
+                  soundEffects.playClick()
+                }}
+                className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
+                title={soundEffects.isMuted ? 'Unmute' : 'Mute'}
+              >
+                {soundEffects.isMuted ? (
+                  <VolumeX size={14} className="text-text-white" />
+                ) : (
+                  <Volume2 size={14} className="text-text-white" />
+                )}
+              </button>
 
-          <div className="glass-panel px-2 py-1 flex items-center gap-1">
-            <span className="text-xs text-muted-slate font-mono">ZM</span>
-            <span className="text-xs text-cyan-nebula font-mono w-5 text-center">{zoom.toFixed(0)}</span>
-          </div>
-          <button
-            onClick={() => soundEffects.playClick() || zoomIn()}
-            className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
-            title="Zoom In"
-          >
-            <ZoomIn size={14} className="text-text-white" />
-          </button>
-          <button
-            onClick={() => soundEffects.playClick() || zoomOut()}
-            className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
-            title="Zoom Out"
-          >
-            <ZoomOut size={14} className="text-text-white" />
-          </button>
-          <button
-            onClick={() => soundEffects.playWarp() || resetToEntry()}
-            className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
-            title="Reset View"
-          >
-            <RotateCcw size={12} className="text-text-white" />
-          </button>
-          <button
-            onClick={onToggleCursorPreset}
-            className="glass-panel px-2 py-1 text-[10px] font-mono text-cyan-nebula hover:bg-cosmic-violet/30 transition-all"
-            title="Toggle cursor preset"
-          >
-            CURSOR {cursorPreset === 'intense' ? 'INTENSE' : 'SUBTLE'}
-          </button>
+              <div className="glass-panel px-2 py-1 flex items-center gap-1">
+                <span className="text-xs text-muted-slate font-mono">ZM</span>
+                <span className="text-xs text-cyan-nebula font-mono w-5 text-center">{zoom.toFixed(0)}</span>
+              </div>
+              <button
+                onClick={() => soundEffects.playClick() || zoomIn()}
+                className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
+                title="Zoom In"
+              >
+                <ZoomIn size={14} className="text-text-white" />
+              </button>
+              <button
+                onClick={() => soundEffects.playClick() || zoomOut()}
+                className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
+                title="Zoom Out"
+              >
+                <ZoomOut size={14} className="text-text-white" />
+              </button>
+              <button
+                onClick={() => soundEffects.playWarp() || resetToEntry()}
+                className="w-7 h-7 glass-panel flex items-center justify-center hover:bg-cosmic-violet/30 transition-all"
+                title="Reset View"
+              >
+                <RotateCcw size={12} className="text-text-white" />
+              </button>
+              <button
+                onClick={onToggleCursorPreset}
+                className="glass-panel px-2 py-1 text-[10px] font-mono text-cyan-nebula hover:bg-cosmic-violet/30 transition-all"
+                title="Toggle cursor preset"
+              >
+                CURSOR {cursorPreset === 'intense' ? 'INTENSE' : 'SUBTLE'}
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -231,14 +274,14 @@ function App() {
   const isMeteorShake = activeEvent === 'meteor-shower'
 
   return (
-    <div className="w-full h-full relative flex items-center justify-center p-2">
-      <div className={`relative w-full h-full max-w-[1400px] max-h-[800px] ${isMeteorShake ? 'animate-camera-shake' : ''}`}>
-        <div className={`absolute inset-0 rounded-xl border border-cosmic-violet/40 pointer-events-none z-20 transition-all ${isFlare ? 'shadow-[0_0_34px_rgba(245,158,11,0.65),inset_0_0_28px_rgba(245,158,11,0.35)]' : 'shadow-[0_0_20px_rgba(124,58,237,0.4),inset_0_0_20px_rgba(124,58,237,0.15)]'}`}></div>
-        <div className="absolute inset-[3px] rounded-lg border border-cyan-nebula/30 shadow-[0_0_15px_rgba(6,182,212,0.25)] pointer-events-none z-20"></div>
-        <div className="absolute top-0 left-0 w-5 h-5 border-l border-t border-cosmic-violet rounded-tl z-20"></div>
-        <div className="absolute top-0 right-0 w-5 h-5 border-r border-t border-cosmic-violet rounded-tr z-20"></div>
-        <div className="absolute bottom-0 left-0 w-5 h-5 border-l border-b border-cosmic-violet rounded-bl z-20"></div>
-        <div className="absolute bottom-0 right-0 w-5 h-5 border-r border-b border-cosmic-violet rounded-br z-20"></div>
+    <div className="w-full h-full relative flex items-center justify-center p-1 sm:p-2">
+      <div className={`relative w-full h-full ${isMobile ? '' : 'max-w-[1400px] max-h-[800px]'} ${isMeteorShake ? 'animate-camera-shake' : ''}`}>
+        <div className={`absolute inset-0 rounded-lg sm:rounded-xl border border-cosmic-violet/40 pointer-events-none z-20 transition-all ${isFlare ? 'shadow-[0_0_34px_rgba(245,158,11,0.65),inset_0_0_28px_rgba(245,158,11,0.35)]' : 'shadow-[0_0_20px_rgba(124,58,237,0.4),inset_0_0_20px_rgba(124,58,237,0.15)]'}`}></div>
+        <div className="absolute inset-[2px] sm:inset-[3px] rounded-lg border border-cyan-nebula/30 shadow-[0_0_15px_rgba(6,182,212,0.25)] pointer-events-none z-20"></div>
+        <div className="absolute top-0 left-0 w-3 h-3 sm:w-5 sm:h-5 border-l border-t border-cosmic-violet rounded-tl z-20"></div>
+        <div className="absolute top-0 right-0 w-3 h-3 sm:w-5 sm:h-5 border-r border-t border-cosmic-violet rounded-tr z-20"></div>
+        <div className="absolute bottom-0 left-0 w-3 h-3 sm:w-5 sm:h-5 border-l border-b border-cosmic-violet rounded-bl z-20"></div>
+        <div className="absolute bottom-0 right-0 w-3 h-3 sm:w-5 sm:h-5 border-r border-b border-cosmic-violet rounded-br z-20"></div>
         
         <Header
           soundEffects={soundEffects}
@@ -246,6 +289,7 @@ function App() {
           cursorPreset={cursorPreset}
           onToggleCursorPreset={handleToggleCursorPreset}
           controlsDisabled={isBlackout}
+          isMobile={isMobile}
         />
         
         <div className={`absolute inset-0 rounded-xl overflow-hidden bg-space-black transition-all ${isFlare ? 'saturate-150 brightness-110' : ''}`}>

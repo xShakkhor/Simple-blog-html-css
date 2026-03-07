@@ -8,6 +8,14 @@ export default function UserInfoPanel() {
   const [userInfo, setUserInfo] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isVisible, setIsVisible] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     if (!isExplored) return
@@ -76,11 +84,12 @@ export default function UserInfoPanel() {
       {!isVisible && (
         <button
           onClick={() => setIsVisible(true)}
-          className="absolute bottom-24 left-4 z-30 glass-panel flex h-10 items-center gap-2 px-3 transition-colors hover:bg-cosmic-violet/20"
+          className={`absolute z-30 glass-panel flex items-center gap-2 transition-colors hover:bg-cosmic-violet/20
+            ${isMobile ? 'bottom-4 left-4 h-9 px-2' : 'bottom-24 left-4 h-10 px-3'}`}
           title="User Info"
         >
-          <Monitor size={16} className="text-cosmic-violet" />
-          <span className="text-[10px] font-mono tracking-[0.18em] text-muted-slate">USER INFO</span>
+          <Monitor size={isMobile ? 14 : 16} className="text-cosmic-violet" />
+          {!isMobile && <span className="text-[10px] font-mono tracking-[0.18em] text-muted-slate">USER INFO</span>}
         </button>
       )}
 
@@ -90,78 +99,72 @@ export default function UserInfoPanel() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="absolute bottom-24 left-4 z-30 w-72 glass-panel p-4"
+            className={`absolute z-30 glass-panel p-3 sm:p-4 
+              ${isMobile 
+                ? 'left-2 right-2 bottom-16 w-auto' 
+                : 'bottom-24 left-4 w-72'}`}
           >
-            <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="mb-3 flex items-start justify-between gap-2 sm:gap-3">
               <div className="flex items-center gap-2">
-                <Globe size={16} className="text-cosmic-violet" />
+                <Globe size={14} sm={16} className="text-cosmic-violet" />
                 <div>
                   <span className="text-sm font-mono text-gradient">USER INFO</span>
-                  <div className="mt-1 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-slate">Ambient session details</div>
+                  {!isMobile && (
+                    <div className="mt-1 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-slate">Ambient session details</div>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-slate">{getTimeGreeting()}</span>
+                {!isMobile && <span className="text-xs text-muted-slate">{getTimeGreeting()}</span>}
                 <button
                   onClick={() => setIsVisible(false)}
-                  className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-muted-slate transition-colors hover:border-cosmic-violet/40 hover:text-text-white"
+                  className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-muted-slate transition-colors hover:border-cosmic-violet/40 hover:text-text-white"
                   title="Hide user info"
                 >
-                  <X size={13} />
+                  <X size={12} sm={13} />
                 </button>
               </div>
             </div>
 
             {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="w-6 h-6 border-2 border-cosmic-violet border-t-transparent rounded-full animate-spin"></div>
+              <div className="flex items-center justify-center py-6 sm:py-8">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-cosmic-violet border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : (
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3">
-                  <Wifi size={14} className="text-plasma-green" />
+              <div className={`space-y-2 ${isMobile ? 'grid grid-cols-2 gap-2' : 'space-y-3'}`}>
+                <div className="flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-white/8 bg-white/5 p-2 sm:p-3">
+                  <Wifi size={12} sm={14} className="text-plasma-green" />
                   <div>
-                    <div className="text-xs text-muted-slate">Session</div>
-                    <div className="text-sm font-mono text-text-white">{userInfo?.ip || 'Local Session'}</div>
+                    <div className="text-[10px] sm:text-xs text-muted-slate">Session</div>
+                    <div className="text-xs sm:text-sm font-mono text-text-white">{userInfo?.ip || 'Local Session'}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3">
-                  <MapPin size={14} className="text-star-gold" />
+                <div className="flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-white/8 bg-white/5 p-2 sm:p-3">
+                  <MapPin size={12} sm={14} className="text-star-gold" />
                   <div>
-                    <div className="text-xs text-muted-slate">Timezone</div>
-                    <div className="text-sm text-text-white">{userInfo?.timezone || 'Unknown'}</div>
+                    <div className="text-[10px] sm:text-xs text-muted-slate">Timezone</div>
+                    <div className="text-xs sm:text-sm text-text-white">{userInfo?.timezone?.split('/')[1]?.replace('_', ' ') || userInfo?.timezone || 'Unknown'}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3">
-                  <Clock size={14} className="text-cyan-nebula" />
+                <div className="flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-white/8 bg-white/5 p-2 sm:p-3">
+                  <Clock size={12} sm={14} className="text-cyan-nebula" />
                   <div>
-                    <div className="text-xs text-muted-slate">Local Time</div>
-                    <div className="text-sm font-mono text-text-white">
+                    <div className="text-[10px] sm:text-xs text-muted-slate">Local Time</div>
+                    <div className="text-xs sm:text-sm font-mono text-text-white">
                       {formatTime(userInfo?.timezone)}
-                      <span className="text-xs text-muted-slate ml-2">
-                        {formatDate(userInfo?.timezone)}
-                      </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3">
-                  <Monitor size={14} className="text-cosmic-violet" />
+                <div className="flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-white/8 bg-white/5 p-2 sm:p-3">
+                  <Monitor size={12} sm={14} className="text-cosmic-violet" />
                   <div>
-                    <div className="text-xs text-muted-slate">Browser</div>
+                    <div className="text-[10px] sm:text-xs text-muted-slate">Browser</div>
                     <div className="text-xs text-text-white truncate">
                       {userInfo?.org || 'Unknown'}
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 p-3">
-                  <Globe size={14} className="text-plasma-green" />
-                  <div>
-                    <div className="text-xs text-muted-slate">Language</div>
-                    <div className="text-sm text-text-white">{userInfo?.language || 'Unknown'}</div>
                   </div>
                 </div>
               </div>

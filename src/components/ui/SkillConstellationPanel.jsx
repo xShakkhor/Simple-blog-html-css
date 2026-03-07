@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { usePortfolioStore } from '../../store/usePortfolioStore'
 import { portfolioData } from '../../data/content'
 
@@ -20,6 +20,14 @@ function projectMatchesCategory(project, category) {
 
 export default function SkillConstellationPanel() {
   const { isExplored, selectedSkillCategory, setSelectedSkillCategory, setCurrentSection } = usePortfolioStore()
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const linkedProjects = useMemo(() => {
     if (!selectedSkillCategory) return []
@@ -29,13 +37,18 @@ export default function SkillConstellationPanel() {
   if (!isExplored) return null
 
   return (
-    <div className="absolute right-4 top-24 z-30 w-[348px] glass-panel p-4">
-      <div className="mb-3 flex items-start justify-between gap-3">
+    <div className={`absolute z-30 glass-panel p-2 sm:p-4 
+      ${isMobile 
+        ? 'left-2 right-2 top-auto bottom-20 w-auto max-h-[40vh] overflow-y-auto' 
+        : 'right-4 top-24 w-[348px]'}`}>
+      <div className="mb-2 sm:mb-3 flex items-start justify-between gap-2 sm:gap-3">
         <div>
-          <span className="text-xs font-mono tracking-[0.24em] text-cyan-nebula">SKILL CONSTELLATION</span>
-          <div className="mt-1 text-[10px] font-mono uppercase tracking-[0.22em] text-muted-slate">
-            Cluster map and linked work
-          </div>
+          <span className="text-[10px] sm:text-xs font-mono tracking-[0.24em] text-cyan-nebula">SKILL CONSTELLATION</span>
+          {!isMobile && (
+            <div className="mt-1 text-[10px] font-mono uppercase tracking-[0.22em] text-muted-slate">
+              Cluster map and linked work
+            </div>
+          )}
         </div>
         <button
           onClick={() => setSelectedSkillCategory(null)}
