@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, useRef } from 'react'
+import { Suspense, useState, useEffect, useRef, lazy } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Loader } from '@react-three/drei'
 import { usePortfolioStore } from './store/usePortfolioStore'
@@ -7,31 +7,30 @@ import HUD from './components/ui/HUD'
 import SpaceRadar from './components/ui/SpaceRadar'
 import StatsMonitor from './components/ui/StatsMonitor'
 import ScreenshotButton from './components/ui/ScreenshotButton'
-import MissionMode from './components/ui/MissionMode'
-import CopilotTerminal from './components/ui/CopilotTerminal'
-import UniverseEvents from './components/ui/UniverseEvents'
 import CursorTrail from './components/ui/CursorTrail'
-import SkillConstellationPanel from './components/ui/SkillConstellationPanel'
-import ProjectDeepZoomScene from './components/ui/ProjectDeepZoomScene'
-import BackgroundMusic, { useBackgroundMusic } from './components/ui/BackgroundMusic'
+import BackgroundMusic from './components/ui/BackgroundMusic'
 import UserInfoPanel from './components/ui/UserInfoPanel'
 import EntryPortal from './components/3d/EntryPortal'
+
+const MissionMode = lazy(() => import('./components/ui/MissionMode'))
+const CopilotTerminal = lazy(() => import('./components/ui/CopilotTerminal'))
+const SkillConstellationPanel = lazy(() => import('./components/ui/SkillConstellationPanel'))
+const ProjectDeepZoomScene = lazy(() => import('./components/ui/ProjectDeepZoomScene'))
+const UniverseEvents = lazy(() => import('./components/ui/UniverseEvents'))
 import { ZoomIn, ZoomOut, RotateCcw, Volume2, VolumeX, Music, Music2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useBackgroundMusic } from './hooks/useBackgroundMusic'
 import { useSoundEffects } from './hooks/useSoundEffects'
 
 function SignalIndicator() {
-  const [isOnline, setIsOnline] = useState(true)
   const [showDisconnected, setShowDisconnected] = useState(false)
 
   useEffect(() => {
     const checkConnection = () => {
       const random = Math.random()
       if (random > 0.85) {
-        setIsOnline(false)
         setShowDisconnected(true)
         setTimeout(() => {
-          setIsOnline(true)
           setShowDisconnected(false)
         }, 150 + Math.random() * 200)
       }
@@ -285,16 +284,22 @@ function App() {
         />
         
         {isExplored && !isBlackout && <HUD />}
-        {!isBlackout && <MissionMode />}
+        {!isBlackout && (
+          <Suspense fallback={null}>
+            <MissionMode />
+            <CopilotTerminal />
+            <SkillConstellationPanel />
+            <BackgroundMusic music={backgroundMusic} />
+          </Suspense>
+        )}
         {!isBlackout && <SpaceRadar />}
         {!isBlackout && <StatsMonitor />}
         {!isBlackout && <ScreenshotButton />}
         {!isBlackout && <UserInfoPanel />}
-        {!isBlackout && <SkillConstellationPanel />}
-        {!isBlackout && <BackgroundMusic music={backgroundMusic} />}
-        {!isBlackout && <CopilotTerminal />}
-        <UniverseEvents onEventChange={setActiveEvent} />
-        <ProjectDeepZoomScene />
+        <Suspense fallback={null}>
+          <UniverseEvents onEventChange={setActiveEvent} />
+          <ProjectDeepZoomScene />
+        </Suspense>
       </div>
       <CursorTrail preset={cursorPreset} />
     </div>
