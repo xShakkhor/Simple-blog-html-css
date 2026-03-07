@@ -15,10 +15,37 @@ export default function UserInfoPanel() {
     const fetchUserInfo = async () => {
       try {
         const response = await fetch('https://ipapi.co/json/')
+        if (!response.ok) throw new Error('ipapi failed')
         const data = await response.json()
-        setUserInfo(data)
+        
+        if (data.ip) {
+          setUserInfo(data)
+        } else {
+          throw new Error('No IP data')
+        }
       } catch {
-        setUserInfo(null)
+        try {
+          const fallback = await fetch('http://ip-api.com/json/?fields=status,message,country,countryCode,city,timezone,isp,org,query')
+          if (fallback.ok) {
+            const data = await fallback.json()
+            if (data.status === 'success') {
+              setUserInfo({
+                ip: data.query,
+                city: data.city,
+                country: data.country,
+                country_code: data.countryCode,
+                timezone: data.timezone,
+                org: data.org || data.isp,
+              })
+            } else {
+              setUserInfo(null)
+            }
+          } else {
+            setUserInfo(null)
+          }
+        } catch {
+          setUserInfo(null)
+        }
       }
       setLoading(false)
     }
