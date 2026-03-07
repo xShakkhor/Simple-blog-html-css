@@ -44,26 +44,54 @@ export default function UserInfoPanel() {
             return null
           },
         },
+        {
+          url: 'https://ipapi.com/json/',
+          parser: (data) => {
+            if (data.ip) {
+              return {
+                ip: data.ip,
+                city: data.city,
+                country: data.country_name,
+                timezone: data.timezone,
+                org: data.org,
+              }
+            }
+            return null
+          },
+        },
       ]
 
       for (const api of apis) {
         try {
+          console.log('Trying API:', api.url)
           const response = await fetch(api.url)
+          console.log('Response status:', response.status, api.url)
           if (response.ok) {
             const data = await response.json()
+            console.log('Response data:', data, api.url)
             const parsed = api.parser(data)
             if (parsed && parsed.ip) {
+              console.log('Parsed user info:', parsed)
               setUserInfo(parsed)
               setLoading(false)
               return
             }
           }
-        } catch {
+        } catch (err) {
+          console.error('API error:', err.message, api.url)
           continue
         }
       }
 
-      setUserInfo(null)
+      console.log('All APIs failed, using local browser info')
+      const localInfo = {
+        ip: '127.0.0.1',
+        city: 'Local',
+        country: 'Network',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        org: 'Local Device',
+      }
+      setUserInfo(localInfo)
       setLoading(false)
     }
 
